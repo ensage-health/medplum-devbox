@@ -35,4 +35,4 @@ jobs:
           build-args: |
             MEDPLUM_BRANCH=${{ github.event.inputs.medplum_branch }}
           push: true
-          tags: ghcr.io/ensage/medplum-box:latest,ghcr.io/ensage/medplum-box:${{ github.event.inputs.medplum_branch }}
+          tags: ghcr.io/ensage-health/medplum-box:latest,ghcr.io/ensage-health/medplum-box:${{ github.event.inputs.medplum_branch }}
