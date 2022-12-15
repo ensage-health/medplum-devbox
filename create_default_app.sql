@@ -1,3 +1,5 @@
+\c medplum;
+
 WITH ref_values as (
 	SELECT uuid('f54370de-eaf3-4d81-a17e-24860f667912') AS client_id,
 	'75d8e7d06bf9283926c51d5f461295ccf0b69128e983b6ecdd5a9c07506895de' AS client_secret,

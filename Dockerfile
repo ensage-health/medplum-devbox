@@ -44,11 +44,6 @@ RUN echo '\nrequirepass medplum' >> /etc/redis/redis.conf
 #     && rm -f /tmp/migrate.sh
 
 # Entrypoint script
-RUN echo '#!/bin/sh\n\
-service postgresql start\n\
-service redis-server start\n\
-cd /workspace/packages/app && npm run dev &\n\
-cd /workspace/packages/server && npm run dev\n\
-' > /workspace/entrypoint.sh && chmod +x /workspace/entrypoint.sh
+ADD create_default_app.sql entrypoint.sh /workspace/
 
 # ENTRYPOINT ["/workspace/entrypoint.sh"]
