@@ -32,18 +32,6 @@ CREATE EXTENSION "uuid-ossp";\n\
 # Configure Redis
 RUN echo '\nrequirepass medplum' >> /etc/redis/redis.conf
 
-# Run database migrations
-# RUN echo '#!/bin/sh\n\
-# service postgresql start && service redis-server start && node /workspace/packages/server/dist/index.js &\n\
-# last_pid=$!\n\
-# sleep 20\n\
-# kill -KILL $last_pid\n\
-# ' > /tmp/migrate.sh \
-#     && chmod +x /tmp/migrate.sh \
-#     && /tmp/migrate.sh \
-#     && rm -f /tmp/migrate.sh
-
 # Entrypoint script
 ADD create_default_app.sql entrypoint.sh /workspace/
-
-# ENTRYPOINT ["/workspace/entrypoint.sh"]
+ENTRYPOINT ["/workspace/entrypoint.sh"]
