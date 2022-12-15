@@ -11,7 +11,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Clone source code and build
 RUN cd / && git clone --depth 1 --branch $MEDPLUM_BRANCH https://github.com/medplum/medplum.git workspace
 WORKDIR /workspace
-RUN npm ci
+# This is to please GitHub Action runners - see https://github.com/npm/cli/issues/3078
+RUN npm config set maxsockets=5 && npm ci
 RUN npm run build
 
 # Configure postgres
