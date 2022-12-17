@@ -1,11 +1,18 @@
 # Medplum Devbox
 
-This repository contains artifacts to build a self-contained docker distribution of medplum with the intention to run
-it in **development** only.
+A [Medplum](https://www.medplum.com/) docker image that you can use to run your local development againt it.
 
-It can then support local development against it.
+Differences with the current (as of 2022-12-17) [official medplum docker image](https://hub.docker.com/r/medplum/medplum-server):
+ - Runs **BOTH** the server **AND** the front-end app concurrently, so that once it's started you can [connect to the app](http://localhost:3000) right away
+ - Runs in development mode; this means a slower startup and execution time
+ - Automatically seeds a `ClientApplication` with default, stable [credentials](#default-application) in addition to the [default medplum user](#default-user)
+ - Multi-arch: `arm64` in addition to `amd64` to support running smoothly on Apple Silicon as well as X86
+
 
 **DO NOT USE IN PRODUCTION**.
+
+This image exists to support local development workflows easily. The fact that it has a default application configured
+means that you should never use this in production.
 
 ## Get started
 
@@ -23,7 +30,7 @@ services:
       - '3000:3000'
       - '8103:8103'
     volumes:
-      - ./medplum/medplum.config.json:/workspace/packages/server/medplum.config.json
+      - ./medplum.config.json:/workspace/packages/server/medplum.config.json
 
   postgres:
     image: postgres:12-bullseye
@@ -35,8 +42,8 @@ services:
       - '5432:5432'
     volumes: 
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/postgres.conf:/usr/local/etc/postgres/postgres.conf
-      - ./postgres/load_extensions.sql:/docker-entrypoint-initdb.d/load_extensions.sql
+      - ./postgres.conf:/usr/local/etc/postgres/postgres.conf
+      - ./load_extensions.sql:/docker-entrypoint-initdb.d/load_extensions.sql
 
   redis:
     image: redis:6-bullseye
@@ -48,11 +55,10 @@ volumes:
   postgres_data:
 ```
 
-Example of content for the volume-mounted files can be found in this repository.
-
-What is important:
- - `medplum.config.json` needs to point to the docker-network host of `postgres` and `redis` respectively
- - `load_extensions.sql` should create the `uuid-ossp` extension, as outlined in the medplum repository
+Example of content for the volume-mounted files can be found here:
+ - [`medplum.config.json`](https://github.com/ensage-health/medplum-devbox/blob/main/medplum/medplum.config.json)
+ - [`postgres.conf`](https://github.com/ensage-health/medplum-devbox/blob/main/postgres/postgres.conf)
+ - [`load_extensions.sql`](https://github.com/ensage-health/medplum-devbox/blob/main/postgres/load_extensions.sql)
 
 ## Ports
 
