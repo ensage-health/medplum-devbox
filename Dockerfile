@@ -11,7 +11,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Clone source code and build
 RUN cd / && git clone --depth 1 --branch $MEDPLUM_BRANCH https://github.com/medplum/medplum.git workspace
 WORKDIR /workspace
-ADD ./medplum/seed.ts.patch /workspace/
+ADD ./medplum/seed.ts.$MEDPLUM_BRANCH.patch /workspace/seed.ts.patch
 RUN patch /workspace/packages/server/src/seed.ts /workspace/seed.ts.patch
 RUN npm ci
 RUN npm run build
