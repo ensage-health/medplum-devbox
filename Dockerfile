@@ -5,33 +5,17 @@ ARG MEDPLUM_BRANCH=main
 
 # Install OS dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends sudo git redis-server postgresql postgresql-contrib postgresql-client \
+    && apt-get -y install --no-install-recommends supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone source code and build
 RUN cd / && git clone --depth 1 --branch $MEDPLUM_BRANCH https://github.com/medplum/medplum.git workspace
 WORKDIR /workspace
+ADD ./medplum/seed.ts.patch /workspace/
+RUN patch /workspace/packages/server/src/seed.ts /workspace/seed.ts.patch
 RUN npm ci
 RUN npm run build
 
-# Configure postgres
-RUN echo "\nlisten_addresses = '*'" >> /etc/postgresql/13/main/postgresql.conf \
-    && echo "host    all             all             0.0.0.0/0            trust" >> /etc/postgresql/13/main/pg_hba.conf
-
-# Create postgesql database and user
-RUN echo 'CREATE USER medplum WITH PASSWORD '"'medplum'"';\n\
-CREATE DATABASE medplum;\n\
-GRANT ALL PRIVILEGES ON DATABASE medplum TO medplum;\n\
-\\c medplum;\n\
-CREATE EXTENSION "uuid-ossp";\n\
-' > /tmp/psql.sql \
-    && service postgresql start \
-    && sudo -i -u postgres psql -f /tmp/psql.sql \
-    && rm -f /tmp/psql.sql
-
-# Configure Redis
-RUN echo '\nrequirepass medplum' >> /etc/redis/redis.conf
-
 # Entrypoint script
-ADD create_default_app.sql entrypoint.sh /workspace/
-ENTRYPOINT ["/workspace/entrypoint.sh"]
+ADD ./medplum/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+CMD ["/usr/bin/supervisord"]
